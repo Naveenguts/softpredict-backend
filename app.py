@@ -1397,8 +1397,14 @@ if not IS_RENDER:
             if mod_name in sys.modules:
                 setattr(sys.modules[mod_name], 'HfFolder', FakeHfFolder)
 
-        def greet(name):
-            return "SoftPredict Clinical API Server is Running!"
+        try:
+            import spaces
+            @spaces.GPU
+            def greet(name):
+                return "SoftPredict Clinical API Server is Running!"
+        except ImportError:
+            def greet(name):
+                return "SoftPredict Clinical API Server is Running!"
             
         demo = gr.Interface(
             fn=greet, 
