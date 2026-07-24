@@ -37,14 +37,23 @@ except Exception as e:
     print(f"[WARN] Failed to mock torchvision.transforms.functional_tensor: {e}")
 
 
-# Hugging Face ZeroGPU compatibility helper (requires at least one @spaces.GPU decorator)
+# ZeroGPU decorator fallback for non-Hugging Face environments (Render/Local)
 try:
     import spaces
-    @spaces.GPU
-    def dummy_gpu_trigger():
-        pass
-    print("[INFO] Zero-GPU space decorator registered successfully.")
 except ImportError:
+    import sys
+    from types import ModuleType
+    mock_spaces = ModuleType("spaces")
+    def mock_gpu_decorator(func=None, duration=None):
+        if func is None:
+            return lambda f: f
+        return func
+    mock_spaces.GPU = mock_gpu_decorator
+    sys.modules["spaces"] = mock_spaces
+    import spaces
+
+@spaces.GPU
+def dummy_gpu_trigger():
     pass
 
 from fastapi import FastAPI, File, HTTPException, UploadFile, Request, Form
@@ -1397,14 +1406,9 @@ if not IS_RENDER:
             if mod_name in sys.modules:
                 setattr(sys.modules[mod_name], 'HfFolder', FakeHfFolder)
 
-        try:
-            import spaces
-            @spaces.GPU
-            def greet(name):
-                return "SoftPredict Clinical API Server is Running!"
-        except ImportError:
-            def greet(name):
-                return "SoftPredict Clinical API Server is Running!"
+        @spaces.GPU
+        def greet(name):
+            return "SoftPredict Clinical API Server is Running!"
             
         demo = gr.Interface(
             fn=greet, 
