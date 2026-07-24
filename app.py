@@ -1347,6 +1347,25 @@ def delete_record(id: int):
 # Hugging Face Spaces Gradio Integration
 # ==========================================================
 try:
+    # Monkeypatch HfFolder which was removed in modern huggingface_hub versions
+    import huggingface_hub
+    import sys
+    class FakeHfFolder:
+        @classmethod
+        def get_token(cls):
+            return None
+        @classmethod
+        def save_token(cls, token):
+            pass
+        @classmethod
+        def delete_token(cls):
+            pass
+    huggingface_hub.HfFolder = FakeHfFolder
+    sys.modules['huggingface_hub.HfFolder'] = FakeHfFolder
+    for mod_name in ['huggingface_hub', 'huggingface_hub.hf_api']:
+        if mod_name in sys.modules:
+            setattr(sys.modules[mod_name], 'HfFolder', FakeHfFolder)
+
     import gradio as gr
     import uvicorn
     
