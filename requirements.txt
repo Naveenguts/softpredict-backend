@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+torch
+torchvision
+mediapipe
+opencv-python
+pillow
+python-multipart
+numpy
+huggingface-hub
+requests
+gfpgan
+./BasicSR
+gradio
+
