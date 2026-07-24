@@ -229,9 +229,9 @@ if HAS_MEDIAPIPE_SOLUTIONS:
             mp_face_mesh.FACEMESH_LIPS,
             mp_face_mesh.FACEMESH_LEFT_EYE,
             mp_face_mesh.FACEMESH_RIGHT_EYE,
-            mp_face_mesh.FACEMESH_LEFT_IRIS,
-            mp_face_mesh.FACEMESH_RIGHT_IRIS,
-            mp_face_mesh.FACEMESH_NOSE_BRIDGE,
+            getattr(mp_face_mesh, "FACEMESH_LEFT_IRIS", set()),
+            getattr(mp_face_mesh, "FACEMESH_RIGHT_IRIS", set()),
+            getattr(mp_face_mesh, "FACEMESH_NOSE_BRIDGE", set()),
         )
     )
 else:
