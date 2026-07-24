@@ -275,7 +275,10 @@ def _extract_landmarks(image_bgr: np.ndarray) -> np.ndarray:
         raise HTTPException(status_code=400, detail="No face detected in the uploaded image.")
 
     landmarks = result.multi_face_landmarks[0].landmark
-    return np.array([[landmark.x, landmark.y, landmark.z] for landmark in landmarks], dtype=np.float32)
+    points = np.array([[landmark.x, landmark.y, landmark.z] for landmark in landmarks], dtype=np.float32)
+    if points.shape[0] > 468:
+        points = points[:468]
+    return points
 
 
 def _simulate_soft_tissue_movement(landmarks: np.ndarray) -> np.ndarray:
