@@ -47,19 +47,6 @@ try:
 except ImportError:
     pass
 
-# Install local BasicSR dependency dynamically if missing (for Hugging Face Spaces compatibility)
-try:
-    import basicsr
-except ImportError:
-    import subprocess
-    import sys
-    print("[INFO] BasicSR not found. Installing dynamically from local directory...")
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "./BasicSR"])
-        print("[INFO] BasicSR installed successfully!")
-    except Exception as ex:
-        print(f"[ERROR] Failed to install local BasicSR: {ex}")
-
 from fastapi import FastAPI, File, HTTPException, UploadFile, Request, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
