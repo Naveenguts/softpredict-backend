@@ -10,6 +10,8 @@ numpy
 huggingface-hub
 requests
 gfpgan
+basicsr
 gradio
+
 
 
