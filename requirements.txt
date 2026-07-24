@@ -1,3 +1,4 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn
 torch
@@ -11,7 +12,7 @@ huggingface-hub
 requests
 gfpgan
 basicsr
-gradio
+
 
 
 
