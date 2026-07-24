@@ -1348,25 +1348,27 @@ def delete_record(id: int):
 # ==========================================================
 try:
     import gradio as gr
+    import uvicorn
     
     def greet(name):
         return "SoftPredict Clinical API Server is Running!"
         
-    io = gr.Interface(
+    demo = gr.Interface(
         fn=greet, 
         inputs="text", 
         outputs="text", 
         title="SoftPredict Clinical API",
-        description="The FastAPI backend is fully operational and mounted at the root URL."
+        description="The FastAPI backend is fully operational."
     )
     
-    # Mount the FastAPI app on the Gradio app instance at the root
-    app = gr.mount_gradio_app(app, io, path="/")
+    # Mount the FastAPI app on the Gradio app instance
+    app = gr.mount_gradio_app(app, demo, path="/gradio")
     
-    if __name__ == "__main__":
-        import uvicorn
-        uvicorn.run(app, host="0.0.0.0", port=7860)
-except ImportError:
-    pass
+    # Start the server directly to block and keep the space alive
+    print("[INFO] Starting Uvicorn server on port 7860...")
+    uvicorn.run(app, host="0.0.0.0", port=7860)
+except Exception as e:
+    print(f"[ERROR] Failed to start Gradio/Uvicorn server: {e}")
+
 
 
