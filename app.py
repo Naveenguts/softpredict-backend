@@ -37,24 +37,7 @@ except Exception as e:
     print(f"[WARN] Failed to mock torchvision.transforms.functional_tensor: {e}")
 
 
-# ZeroGPU decorator fallback for non-Hugging Face environments (Render/Local)
-try:
-    import spaces
-except ImportError:
-    import sys
-    from types import ModuleType
-    mock_spaces = ModuleType("spaces")
-    def mock_gpu_decorator(func=None, duration=None):
-        if func is None:
-            return lambda f: f
-        return func
-    mock_spaces.GPU = mock_gpu_decorator
-    sys.modules["spaces"] = mock_spaces
-    import spaces
 
-@spaces.GPU
-def dummy_gpu_trigger():
-    pass
 
 from fastapi import FastAPI, File, HTTPException, UploadFile, Request, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -1369,63 +1352,8 @@ def delete_record(id: int):
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
-# ==========================================================
-# Hugging Face Spaces Gradio Integration
-# ==========================================================
-# If running on Render, skip the script-level server boot entirely (Render runs its own CLI command)
-if not IS_RENDER:
-    try:
-        import sys
-        import subprocess
-        
-        # Check if gradio is installed; if not, install it dynamically
-        try:
-            import gradio as gr
-        except ImportError:
-            print("[INFO] Gradio not found. Installing dynamically for Hugging Face Spaces...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "gradio"])
-            import gradio as gr
-            
-        import uvicorn
-        
-        # Monkeypatch HfFolder which was removed in modern huggingface_hub versions
-        import huggingface_hub
-        class FakeHfFolder:
-            @classmethod
-            def get_token(cls):
-                return None
-            @classmethod
-            def save_token(cls, token):
-                pass
-            @classmethod
-            def delete_token(cls):
-                pass
-        huggingface_hub.HfFolder = FakeHfFolder
-        sys.modules['huggingface_hub.HfFolder'] = FakeHfFolder
-        for mod_name in ['huggingface_hub', 'huggingface_hub.hf_api']:
-            if mod_name in sys.modules:
-                setattr(sys.modules[mod_name], 'HfFolder', FakeHfFolder)
+# Main API App instance is exported as 'app'
 
-        @spaces.GPU
-        def greet(name):
-            return "SoftPredict Clinical API Server is Running!"
-            
-        demo = gr.Interface(
-            fn=greet, 
-            inputs="text", 
-            outputs="text", 
-            title="SoftPredict Clinical API",
-            description="The FastAPI backend is fully operational."
-        )
-        
-        # Mount the FastAPI app on the Gradio app instance
-        app = gr.mount_gradio_app(app, demo, path="/gradio")
-        
-        # Start the server directly to block and keep the space alive
-        print("[INFO] Starting Uvicorn server on port 7860...")
-        uvicorn.run(app, host="0.0.0.0", port=7860)
-    except Exception as e:
-        print(f"[ERROR] Failed to start Gradio/Uvicorn server: {e}")
 
 
 

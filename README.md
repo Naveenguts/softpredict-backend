@@ -5,7 +5,7 @@ colorFrom: gray
 colorTo: gray
 sdk: gradio
 sdk_version: 4.19.2
-app_file: app.py
+app_file: space.py
 pinned: false
 ---
 
