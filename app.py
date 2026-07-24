@@ -37,6 +37,16 @@ except Exception as e:
     print(f"[WARN] Failed to mock torchvision.transforms.functional_tensor: {e}")
 
 
+# Hugging Face ZeroGPU compatibility helper (requires at least one @spaces.GPU decorator)
+try:
+    import spaces
+    @spaces.GPU
+    def dummy_gpu_trigger():
+        pass
+    print("[INFO] Zero-GPU space decorator registered successfully.")
+except ImportError:
+    pass
+
 from fastapi import FastAPI, File, HTTPException, UploadFile, Request, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
