@@ -28,6 +28,15 @@ def _patched_torch_load(*args, **kwargs):
         raise e
 torch.load = _patched_torch_load
 
+import sys
+try:
+    import torchvision.transforms.functional as torchvision_functional
+    sys.modules['torchvision.transforms.functional_tensor'] = torchvision_functional
+    print("[INFO] Successfully mocked torchvision.transforms.functional_tensor for BasicSR compatibility.")
+except Exception as e:
+    print(f"[WARN] Failed to mock torchvision.transforms.functional_tensor: {e}")
+
+
 from fastapi import FastAPI, File, HTTPException, UploadFile, Request, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
